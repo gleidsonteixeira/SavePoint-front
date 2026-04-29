@@ -3,41 +3,41 @@ import { useEffect, useState } from "react";
 import { LuPlus } from "react-icons/lu";
 import { type ContaType } from "../hooks/contasHooks";
 import { BiPencil, BiTrash } from "react-icons/bi";
+import { AXIOS } from "../services";
+import type { JogoType } from "../hooks/jogosHooks";
+
 
 const Contas = () => {
     const [modalCriar, setModalCriar] = useState(false);
     const [modalEditar, setModalEditar] = useState(false);
     const { notification } = App.useApp();
     const [contas, setContas] = useState<ContaType[]>([]);
+    const [jogos, setJogos] = useState<JogoType[]>([]);
     const [formEditar] = Form.useForm();
 
     async function buscar() {
-        const request = await fetch("http://127.0.0.1:8000/api/contas");
-        const response = await request.json();
-        setContas(response);
+        const response = await AXIOS.get("/contas");
+        setContas(response.data);
+    }
+
+    async function buscarJogos() {
+        const response = await AXIOS.get("/jogos");
+        setJogos(response.data);
     }
 
     async function criar(dados: ContaType) {
-        const request = await fetch("http://127.0.0.1:8000/api/contas", {
-            method: "post",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify(dados)
-        });
+        const response = await AXIOS.post("/contas", dados);
 
-        const response = await request.json();
-
-        if (request.status === 500) {
+        if (response.status === 500) {
             notification.error({
-                description: response.mensagem,
+                description: response.data.mensagem,
                 placement: "bottomRight"
             });
             return;
         }
 
         notification.success({
-            description: response.mensagem,
+            description: response.data.mensagem,
             placement: "bottomRight"
         });
 
@@ -46,26 +46,18 @@ const Contas = () => {
     }
 
     async function editar(dados: ContaType) {
-        const request = await fetch(`http://127.0.0.1:8000/api/contas/${dados.id}`, {
-            method: "put",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify(dados)
-        });
+        const response = await AXIOS.put(`/contas/${dados.id}`, dados);
 
-        const response = await request.json();
-
-        if (request.status === 500) {
+        if (response.status === 500) {
             notification.error({
-                description: response.mensagem,
+                description: response.data.mensagem,
                 placement: "bottomRight"
             });
             return;
         }
 
         notification.success({
-            description: response.mensagem,
+            description: response.data.mensagem,
             placement: "bottomRight"
         });
 
@@ -74,25 +66,18 @@ const Contas = () => {
     }
 
     async function deletar(id: number) {
-        const request = await fetch(`http://127.0.0.1:8000/api/contas/${id}`, {
-            method: "delete",
-            headers: {
-                "content-type": "application/json"
-            }
-        });
+        const response = await AXIOS.delete(`/contas/${id}`);
 
-        const response = await request.json();
-
-        if (request.status === 500) {
+        if (response.status === 500) {
             notification.error({
-                description: response.mensagem,
+                description: response.data.mensagem,
                 placement: "bottomRight"
             });
             return;
         }
 
         notification.success({
-            description: response.mensagem,
+            description: response.data.mensagem,
             placement: "bottomRight"
         });
 
@@ -101,6 +86,7 @@ const Contas = () => {
 
     useEffect(() => {
         buscar();
+        buscarJogos();
     }, []);
 
     return (
@@ -197,18 +183,34 @@ const Contas = () => {
                     layout="vertical"
                     onFinish={criar}
                 >
-                    <Form.Item label="Conta Pai ID" name="conta_pai_id">
-                        <Select 
-                            showSearch={{optionFilterProp: 'label',}}
-                            options={contas.map(conta => {
-                                return {
-                                    label: conta.email,
-                                    value: conta.id
-                                }
-                            })}
-                        />
-                    </Form.Item>
                     <Divider titlePlacement="left">Dados de Acesso</Divider>
+                    <div className="flex gap-4 *:flex-1">
+                        <Form.Item label="Jogo ID" name="jogo_id">
+                            <Select
+                                showSearch={{ optionFilterProp: 'label', }}
+                                options={jogos.map(jogo => {
+                                    return {
+                                        label: `${jogo.nome}(${jogo.plataforma})`,
+                                        value: jogo.id
+                                    }
+                                })}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Conta Pai ID" name="conta_pai_id">
+                            <Select
+                                showSearch={{ optionFilterProp: 'label', }}
+                                options={contas.map(conta => {
+                                    return {
+                                        label: conta.email,
+                                        value: conta.id
+                                    }
+                                })}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Store ID" name="store_id">
+                            <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
+                    </div>
                     <div className="flex gap-4 *:flex-1">
                         <Form.Item
                             label="E-mail"
@@ -226,19 +228,40 @@ const Contas = () => {
                             <Input.Password className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
                         </Form.Item>
 
-                        <Form.Item label="Códigos FA" name="fa_codigos">
+                        <Form.Item label="Códigos 2FA" name="fa_codigos">
+                            <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
+                        <Form.Item
+                            label="Data de Nascimento"
+                            name="data_nascimento"
+                            rules={[{ required: true, message: "Campo Obrigatório" }]}
+                        >
+                            <Input type="date" className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
+                        
+                    </div>
+                    <Divider titlePlacement="left">Dados Complementares</Divider>
+                    <div className="flex gap-4 *:flex-1">
+                        <Form.Item label="Custo de Aquisição" name="custo_aquisicao">
+                            <InputNumber className="w-full!" min={0} step={0.01} />
+                        </Form.Item>
+
+                        <Form.Item label="Data de Aquisição" name="data_aquisicao">
+                            <Input type="date" className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
+
+                        <Form.Item label="País de Origem" name="pais_origem">
                             <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
                         </Form.Item>
 
-                        <Form.Item label="Último Acesso" name="ultimo_acesso">
-                            <Input type="date" className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        <Form.Item label="Saldo Disponível" name="saldo_disponivel">
+                            <InputNumber className="w-full!" min={0} step={0.01} />
                         </Form.Item>
                     </div>
-                    <Divider titlePlacement="left">Dados de Yamp</Divider>
+
+                    {/* <Divider titlePlacement="left">Dados de Yamp</Divider>
                     <div className="flex gap-4 *:flex-1">
-                        <Form.Item label="Store ID" name="store_id">
-                            <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                        </Form.Item>
+                        
 
                         <Form.Item label="Referência Externa" name="referencia_externa">
                             <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
@@ -247,25 +270,9 @@ const Contas = () => {
 
 
 
-                    <Form.Item label="Data de Nascimento" name="data_nascimento">
-                        <Input type="date" className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                    </Form.Item>
+                    
 
-                    <Form.Item label="Custo de Aquisição" name="custo_aquisicao">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
-
-                    <Form.Item label="Data de Aquisição" name="data_aquisicao">
-                        <Input type="date" className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                    </Form.Item>
-
-                    <Form.Item label="País de Origem" name="pais_origem">
-                        <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                    </Form.Item>
-
-                    <Form.Item label="Saldo Disponível" name="saldo_disponivel">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
+                     */}
 
                     <Button type="primary" htmlType="submit">Criar</Button>
                 </Form>
