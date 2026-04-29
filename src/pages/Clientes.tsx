@@ -18,12 +18,12 @@ const Clientes = () => {
     // const { mutate: criarCliente } = useCriarCliente();
 
     async function buscar() {
-        const request = await fetch("http://127.0.0.1:8000/api/clientes")
+        const request = await fetch("http://www.axiepsx.com/api/clientes")
         const response = await request.json()
         setClientes(response)
     }
     async function criar(dados: ClienteType) {
-        const request = await fetch("http://127.0.0.1:8000/api/clientes", {
+        const request = await fetch("http://www.axiepsx.com/api/clientes", {
             method: "post",
             headers: {
                 "content-type": "application/json"
@@ -55,7 +55,7 @@ const Clientes = () => {
         // })
     }
     async function editar(dados: ClienteType){
-        const request = await fetch(`http://127.0.0.1:8000/api/clientes/${dados.id}`, {
+        const request = await fetch(`http://www.axiepsx.com/api/clientes/${dados.id}`, {
             method: "put",
             headers: {
                 "content-type": "application/json"
@@ -80,7 +80,7 @@ const Clientes = () => {
         buscar()
     }
     async function deletar(id: string){
-        const request = await fetch(`http://127.0.0.1:8000/api/clientes/${id}`, {
+        const request = await fetch(`http://www.axiepsx.com/api/clientes/${id}`, {
             method: "delete",
             headers: {
                 "content-type": "application/json"
