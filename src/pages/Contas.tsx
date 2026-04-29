@@ -1,4 +1,4 @@
-import { App, Button, Form, Input, InputNumber, Modal, Popconfirm, Table } from "antd";
+import { App, Button, Divider, Form, Input, InputNumber, Modal, Popconfirm, Select, Table } from "antd";
 import { useEffect, useState } from "react";
 import { LuPlus } from "react-icons/lu";
 import { type ContaType } from "../hooks/contasHooks";
@@ -191,46 +191,61 @@ const Contas = () => {
                 open={modalCriar}
                 footer={null}
                 onCancel={() => setModalCriar(false)}
+                width={900}
             >
                 <Form
                     layout="vertical"
                     onFinish={criar}
                 >
-                    <Form.Item
-                        label="E-mail"
-                        name="email"
-                        rules={[{ required: true, message: "Campo Obrigatório" }]}
-                    >
-                        <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                    </Form.Item>
-
-                    <Form.Item
-                        label="Senha"
-                        name="senha"
-                        rules={[{ required: true, message: "Campo Obrigatório" }]}
-                    >
-                        <Input.Password className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                    </Form.Item>
-
-                    <Form.Item label="Códigos FA" name="fa_codigos">
-                        <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                    </Form.Item>
-
-                    <Form.Item label="Store ID" name="store_id">
-                        <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                    </Form.Item>
-
                     <Form.Item label="Conta Pai ID" name="conta_pai_id">
-                        <InputNumber className="w-full" />
+                        <Select 
+                            showSearch={{optionFilterProp: 'label',}}
+                            options={contas.map(conta => {
+                                return {
+                                    label: conta.email,
+                                    value: conta.id
+                                }
+                            })}
+                        />
                     </Form.Item>
+                    <Divider titlePlacement="left">Dados de Acesso</Divider>
+                    <div className="flex gap-4 *:flex-1">
+                        <Form.Item
+                            label="E-mail"
+                            name="email"
+                            rules={[{ required: true, message: "Campo Obrigatório" }]}
+                        >
+                            <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
 
-                    <Form.Item label="Último Acesso" name="ultimo_acesso">
-                        <Input type="date" className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                    </Form.Item>
+                        <Form.Item
+                            label="Senha"
+                            name="senha"
+                            rules={[{ required: true, message: "Campo Obrigatório" }]}
+                        >
+                            <Input.Password className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
 
-                    <Form.Item label="Referência Externa" name="referencia_externa">
-                        <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
-                    </Form.Item>
+                        <Form.Item label="Códigos FA" name="fa_codigos">
+                            <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
+
+                        <Form.Item label="Último Acesso" name="ultimo_acesso">
+                            <Input type="date" className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
+                    </div>
+                    <Divider titlePlacement="left">Dados de Yamp</Divider>
+                    <div className="flex gap-4 *:flex-1">
+                        <Form.Item label="Store ID" name="store_id">
+                            <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
+
+                        <Form.Item label="Referência Externa" name="referencia_externa">
+                            <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                        </Form.Item>
+                    </div>
+
+
 
                     <Form.Item label="Data de Nascimento" name="data_nascimento">
                         <Input type="date" className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />

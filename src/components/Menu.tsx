@@ -3,9 +3,9 @@ import logo from '../assets/logo-savepoint.png';
 
 const Menu = () => {
     return (
-        <div className="w-62.5 h-screen bg-white">
-            <img src={logo} alt="Logo" className="" />
-            <nav className="flex flex-col gap-2 p-4 :leading-10:hover:bg-azul-total/15! :duration-150!:rounded :pl-2:text-azul-total! :[&.active]:bg-azul-total!:[&.active]:text-white! *:font-semibold">
+        <div className="w-62.5 h-screen bg-azul-total">
+            <img src={logo} alt="Logo" className="w-40 m-auto" />
+            <nav className="flex flex-col gap-2 p-4 leading-10 *:text-white! *:hover:bg-azul-total/15! :duration-150!:rounded :pl-2:text-azul-total! :[&.active]:bg-azul-total!:[&.active]:text-white! *:font-semibold">
                 <NavLink end to="/">Home</NavLink>
                 <NavLink end to="/clientes">Clientes</NavLink>
                 <NavLink end to="/contas">Contas</NavLink>
