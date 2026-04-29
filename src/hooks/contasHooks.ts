@@ -6,8 +6,8 @@ export interface ContaType {
     store_id?: string;
     conta_pai_id?: number | null;
     ultimo_acesso?: string | null;
-    referencia_externa?: string;
-    data_nascimento?: string | null;
+    jogo_id: string;
+    data_nascimento: string | null;
     custo_aquisicao?: number;
     data_aquisicao?: string | null;
     pais_origem?: string;

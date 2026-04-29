@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { LuPlus } from "react-icons/lu";
 import { BiPencil, BiTrash } from "react-icons/bi";
 import { type JogoType } from "../hooks/jogosHooks";
+import { AXIOS } from "../services";
 
 const Jogos = () => {
     const [modalCriar, setModalCriar] = useState(false);
@@ -12,32 +13,23 @@ const Jogos = () => {
     const [formEditar] = Form.useForm();
 
     async function buscar() {
-        const request = await fetch("http://127.0.0.1:8000/api/jogos");
-        const response = await request.json();
-        setJogos(response);
+        const response = await AXIOS.get("/jogos");
+        setJogos(response.data);
     }
 
     async function criar(dados: JogoType) {
-        const request = await fetch("http://127.0.0.1:8000/api/jogos", {
-            method: "post",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify(dados)
-        });
+        const response = await AXIOS.post("/jogos", dados);
 
-        const response = await request.json();
-
-        if (!request.ok) {
+        if (response.status === 500) {
             notification.error({
-                description: response.mensagem ?? "Erro ao criar jogo.",
+                description: response.data.mensagem,
                 placement: "bottomRight"
             });
             return;
         }
 
         notification.success({
-            description: response.mensagem,
+            description: response.data.mensagem,
             placement: "bottomRight"
         });
 
@@ -46,26 +38,18 @@ const Jogos = () => {
     }
 
     async function editar(dados: JogoType) {
-        const request = await fetch(`http://127.0.0.1:8000/api/jogos/${dados.id}`, {
-            method: "put",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify(dados)
-        });
+        const response = await AXIOS.put(`/jogos/${dados.id}`, dados);
 
-        const response = await request.json();
-
-        if (!request.ok) {
+        if (response.status === 500) {
             notification.error({
-                description: response.mensagem ?? "Erro ao atualizar jogo.",
+                description: response.data.mensagem,
                 placement: "bottomRight"
             });
             return;
         }
 
         notification.success({
-            description: response.mensagem,
+            description: response.data.mensagem,
             placement: "bottomRight"
         });
 
@@ -74,25 +58,18 @@ const Jogos = () => {
     }
 
     async function deletar(id: number) {
-        const request = await fetch(`http://127.0.0.1:8000/api/jogos/${id}`, {
-            method: "delete",
-            headers: {
-                "content-type": "application/json"
-            }
-        });
+        const response = await AXIOS.delete(`/jogos/${id}`);
 
-        const response = await request.json();
-
-        if (!request.ok) {
+        if (response.status === 500) {
             notification.error({
-                description: response.mensagem ?? "Erro ao remover jogo.",
+                description: response.data.mensagem,
                 placement: "bottomRight"
             });
             return;
         }
 
         notification.success({
-            description: response.mensagem,
+            description: response.data.mensagem,
             placement: "bottomRight"
         });
 
@@ -175,7 +152,7 @@ const Jogos = () => {
                         <Input />
                     </Form.Item>
 
-                    <Form.Item label="Contas" name="contas">
+                    <Form.Item label="Jogos" name="Jogos">
                         <InputNumber className="w-full" min={0} />
                     </Form.Item>
 
@@ -286,7 +263,7 @@ const Jogos = () => {
                         <Input />
                     </Form.Item>
 
-                    <Form.Item label="Contas" name="contas">
+                    <Form.Item label="Jogos" name="Jogos">
                         <InputNumber className="w-full" min={0} />
                     </Form.Item>
 
