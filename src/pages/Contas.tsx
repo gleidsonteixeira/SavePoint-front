@@ -55,8 +55,8 @@ const Contas = () => {
     }
 
     async function editar(dados: ContaType) {
-        dados.fa_codigos = dados.fa_codigos?.replaceAll(" ", " | ")
-        dados.senha_dispositivo = dados.senha_dispositivo?.replaceAll(" ", " | ")
+        dados.fa_codigos = dados.fa_codigos?.includes("|") ? dados.fa_codigos : dados.fa_codigos?.replaceAll(" ", " | ")
+        dados.senha_dispositivo = dados.senha_dispositivo?.includes("|") ? dados.senha_dispositivo : dados.senha_dispositivo?.replaceAll(" ", " | ")
         const response = await AXIOS.put(`/contas/${dados.id}`, dados);
         
         if (response.status === 500) {
@@ -250,7 +250,7 @@ const Contas = () => {
                             name="senha_dispositivo"
 
                         >
-                            <Input.Password className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                            <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
                         </Form.Item>
 
 
@@ -373,7 +373,7 @@ const Contas = () => {
                             name="senha_dispositivo"
 
                         >
-                            <Input.Password className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
+                            <Input className="w-full p-2 border border-gray-300 focus:outline-azul-total! rounded" />
                         </Form.Item>
 
 

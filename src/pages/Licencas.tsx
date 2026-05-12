@@ -1,7 +1,7 @@
-import { App, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Table } from "antd";
+import { App, Button, Dropdown, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag, type MenuProps } from "antd";
 import { useEffect, useState } from "react";
 import { LuPlus } from "react-icons/lu";
-import { BiPencil, BiTrash } from "react-icons/bi";
+import { BiPencil, BiPlus, BiTrash, BiX } from "react-icons/bi";
 import { type LicencaType } from "../hooks/licencasHooks";
 import { AXIOS } from "../services";
 import type { ContaType } from "../hooks/contasHooks";
@@ -17,8 +17,39 @@ const Licencas = () => {
     const [contas, setContas] = useState<ContaType[]>([]);
     const [jogos, setJogos] = useState<JogoType[]>([]);
     const [formCriar] = Form.useForm();
-    const jogo_selecao = Form.useWatch("jogo_id", formCriar)
+    const jogo_selecao = Form.useWatch("jogo_id", formCriar);
+    const [plataformasEscolhidas, setPlataformasEscolhidas] = useState<string[]>([]);
 
+    const items: MenuProps['items'] = [
+        {
+            label: "PS3",
+            key: '0',
+            onClick: () => {
+                setPlataformasEscolhidas([...plataformasEscolhidas, "PS3"])
+            }
+        },
+        {
+            label: "Primária PS4",
+            key: '1',
+            onClick: () => {
+                setPlataformasEscolhidas([...plataformasEscolhidas, "Primária PS4"])
+            }
+        },
+        {
+            label: "Secundária PS4/PS5",
+            key: '2',
+            onClick: () => {
+                setPlataformasEscolhidas([...plataformasEscolhidas, "Secundária PS4/PS5"])
+            }
+        },
+        {
+            label: "Primária PS5",
+            key: '2',
+            onClick: () => {
+                setPlataformasEscolhidas([...plataformasEscolhidas, "Primária PS5"])
+            }
+        },
+    ];
 
     async function buscar() {
         const response = await AXIOS.get("/licencas");
@@ -36,7 +67,15 @@ const Licencas = () => {
     }
 
     async function criar(dados: LicencaType) {
-        dados.tipo_licenca = dados.tipo_licenca.toString();
+
+        if(plataformasEscolhidas.length == 0){
+            notification.error({
+                description: "Escolha plataformas",
+                placement: "bottomRight"
+            });
+            return;
+        }
+        dados.tipo_licenca = plataformasEscolhidas.toString();
         const response = await AXIOS.post("/licencas", dados);
 
         if (response.status === 500) {
@@ -75,7 +114,6 @@ const Licencas = () => {
         setModalEditar(false);
         buscar();
     }
-
 
     async function deletar(id: number) {
         const response = await AXIOS.delete(`/licencas/${id}`);
@@ -182,9 +220,34 @@ const Licencas = () => {
                     <Form.Item
                         label="Tipo de Licença"
                         name="tipo_licenca"
-                        rules={[{ required: true, message: "Campo Obrigatório" }]}
                     >
-                        <Select
+                        <div className="flex gap-2 items-center">
+                            <div className="w-full min-h-8 rounded-md border border-black/15 flex flex-wrap items-center px-1 gap-1">
+                                {
+                                    plataformasEscolhidas.map((plataforma, posicao) => (
+                                        <Tag
+                                            key={`t-${posicao}`}
+                                            className={"flex! gap-1! items-center! cursor-pointer"}
+                                            color={"#2b3895"}
+                                            onClick={() => {
+                                                setPlataformasEscolhidas(plataformasEscolhidas.filter((p, i) => i != posicao));
+                                            }}
+                                        >
+                                            {plataforma} <BiX size={16} />
+                                        </Tag>
+                                    ))
+                                }
+                            </div>
+                            <Dropdown menu={{ items }} trigger={['click']}>
+                                <Button type="primary" onClick={(e) => e.preventDefault()}>
+                                    <Space>
+                                        Escolher
+                                        <BiPlus />
+                                    </Space>
+                                </Button>
+                            </Dropdown>
+                        </div>
+                        {/* <Select
                             mode="multiple"
                             options={[
                                 {
@@ -219,9 +282,9 @@ const Licencas = () => {
                                     label: "Secundária",
                                     value: "Secundária",
                                 },
-                                
+
                             ]}
-                        />
+                        /> */}
 
                     </Form.Item>
 
