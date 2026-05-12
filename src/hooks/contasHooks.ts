@@ -12,4 +12,6 @@ export interface ContaType {
     data_aquisicao?: string | null;
     pais_origem?: string;
     saldo_disponivel?: number;
+    senha_dispositivo?: string;
+    status_conta: string;
 }

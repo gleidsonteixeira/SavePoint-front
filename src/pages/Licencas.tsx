@@ -1,8 +1,12 @@
-import { App, Button, Form, Input, InputNumber, Modal, Popconfirm, Table } from "antd";
+import { App, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Table } from "antd";
 import { useEffect, useState } from "react";
 import { LuPlus } from "react-icons/lu";
 import { BiPencil, BiTrash } from "react-icons/bi";
 import { type LicencaType } from "../hooks/licencasHooks";
+import { AXIOS } from "../services";
+import type { ContaType } from "../hooks/contasHooks";
+import type { JogoType } from "../hooks/jogosHooks";
+
 
 const Licencas = () => {
     const [modalCriar, setModalCriar] = useState(false);
@@ -10,34 +14,41 @@ const Licencas = () => {
     const { notification } = App.useApp();
     const [licencas, setLicencas] = useState<LicencaType[]>([]);
     const [formEditar] = Form.useForm();
+    const [contas, setContas] = useState<ContaType[]>([]);
+    const [jogos, setJogos] = useState<JogoType[]>([]);
+    const [formCriar] = Form.useForm();
+    const jogo_selecao = Form.useWatch("jogo_id", formCriar)
+
 
     async function buscar() {
-        const request = await fetch("http://127.0.0.1:8000/api/licencas");
-        const response = await request.json();
-        setLicencas(response);
+        const response = await AXIOS.get("/licencas");
+        setLicencas(response.data);
+    }
+
+    async function buscarContas() {
+        const response = await AXIOS.get("/contas");
+        setContas(response.data);
+    }
+
+    async function buscarJogos() {
+        const response = await AXIOS.get("/jogos");
+        setJogos(response.data);
     }
 
     async function criar(dados: LicencaType) {
-        const request = await fetch("http://127.0.0.1:8000/api/licencas", {
-            method: "post",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify(dados)
-        });
+        dados.tipo_licenca = dados.tipo_licenca.toString();
+        const response = await AXIOS.post("/licencas", dados);
 
-        const response = await request.json();
-
-        if (!request.ok) {
+        if (response.status === 500) {
             notification.error({
-                description: response.mensagem ?? "Erro ao criar licença.",
+                description: response.data.mensagem,
                 placement: "bottomRight"
             });
             return;
         }
 
         notification.success({
-            description: response.mensagem,
+            description: response.data.mensagem,
             placement: "bottomRight"
         });
 
@@ -46,26 +57,18 @@ const Licencas = () => {
     }
 
     async function editar(dados: LicencaType) {
-        const request = await fetch(`http://127.0.0.1:8000/api/licencas/${dados.id}`, {
-            method: "put",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify(dados)
-        });
+        const response = await AXIOS.put(`/jogos/${dados.id}`, dados);
 
-        const response = await request.json();
-
-        if (!request.ok) {
+        if (response.status === 500) {
             notification.error({
-                description: response.mensagem ?? "Erro ao atualizar licença.",
+                description: response.data.mensagem,
                 placement: "bottomRight"
             });
             return;
         }
 
         notification.success({
-            description: response.mensagem,
+            description: response.data.mensagem,
             placement: "bottomRight"
         });
 
@@ -73,26 +76,20 @@ const Licencas = () => {
         buscar();
     }
 
+
     async function deletar(id: number) {
-        const request = await fetch(`http://127.0.0.1:8000/api/licencas/${id}`, {
-            method: "delete",
-            headers: {
-                "content-type": "application/json"
-            }
-        });
+        const response = await AXIOS.delete(`/licencas/${id}`);
 
-        const response = await request.json();
-
-        if (!request.ok) {
+        if (response.status === 500) {
             notification.error({
-                description: response.mensagem ?? "Erro ao remover licença.",
+                description: response.data.mensagem,
                 placement: "bottomRight"
             });
             return;
         }
 
         notification.success({
-            description: response.mensagem,
+            description: response.data.mensagem,
             placement: "bottomRight"
         });
 
@@ -101,6 +98,8 @@ const Licencas = () => {
 
     useEffect(() => {
         buscar();
+        buscarJogos();
+        buscarContas();
     }, []);
 
     return (
@@ -156,21 +155,28 @@ const Licencas = () => {
                 footer={null}
                 onCancel={() => setModalCriar(false)}
             >
-                <Form layout="vertical" onFinish={criar}>
-                    <Form.Item
-                        label="Conta ID"
-                        name="conta_id"
-                        rules={[{ required: true, message: "Campo Obrigatório" }]}
-                    >
-                        <InputNumber className="w-full" />
+                <Form layout="vertical" onFinish={criar} form={formCriar}>
+                    <Form.Item label="Jogo ID" name="jogo_id">
+                        <Select
+                            showSearch={{ optionFilterProp: 'label', }}
+                            options={jogos.map(jogo => {
+                                return {
+                                    label: `${jogo.nome}(${jogo.plataforma})`,
+                                    value: jogo.id
+                                }
+                            })}
+                        />
                     </Form.Item>
-
-                    <Form.Item
-                        label="Jogo ID"
-                        name="jogo_id"
-                        rules={[{ required: true, message: "Campo Obrigatório" }]}
-                    >
-                        <InputNumber className="w-full" />
+                    <Form.Item label="Conta" name="conta_id">
+                        <Select
+                            showSearch={{ optionFilterProp: 'label', }}
+                            options={contas.filter(conta => conta.jogo_id == jogo_selecao).map(conta => {
+                                return {
+                                    label: conta.email,
+                                    value: conta.id
+                                }
+                            })}
+                        />
                     </Form.Item>
 
                     <Form.Item
@@ -178,19 +184,45 @@ const Licencas = () => {
                         name="tipo_licenca"
                         rules={[{ required: true, message: "Campo Obrigatório" }]}
                     >
-                        <Input />
-                    </Form.Item>
+                        <Select
+                            mode="multiple"
+                            options={[
+                                {
+                                    label: "PS3",
+                                    value: "PS3",
+                                },
+                                {
+                                    label: "Primária PS4",
+                                    value: "Primária PS4",
+                                },
+                                {
+                                    label: "Secundária PS4/PS5",
+                                    value: "Secundária PS4/PS5",
+                                },
+                                {
+                                    label: "Primária PS5",
+                                    value: "Primária PS5",
+                                },
+                                {
+                                    label: "Secundária PS5",
+                                    value: "Secundária PS5",
+                                },
+                                {
+                                    label: "Xbox 360",
+                                    value: "Xbox 360",
+                                },
+                                {
+                                    label: "Primária",
+                                    value: "Primária",
+                                },
+                                {
+                                    label: "Secundária",
+                                    value: "Secundária",
+                                },
+                                
+                            ]}
+                        />
 
-                    <Form.Item
-                        label="Status"
-                        name="status"
-                        rules={[{ required: true, message: "Campo Obrigatório" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-
-                    <Form.Item label="OTP Licença" name="otp_licenca">
-                        <Input />
                     </Form.Item>
 
                     <Button type="primary" htmlType="submit">Criar</Button>

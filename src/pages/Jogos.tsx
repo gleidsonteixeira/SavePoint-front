@@ -1,4 +1,4 @@
-import { App, Button, Form, Input, InputNumber, Modal, Popconfirm, Table } from "antd";
+import { App, Button, Divider, Form, Input, InputNumber, Modal, Popconfirm, Select, Table } from "antd";
 import { useEffect, useState } from "react";
 import { LuPlus } from "react-icons/lu";
 import { BiPencil, BiTrash } from "react-icons/bi";
@@ -11,7 +11,8 @@ const Jogos = () => {
     const { notification } = App.useApp();
     const [jogos, setJogos] = useState<JogoType[]>([]);
     const [formEditar] = Form.useForm();
-
+    const [formCriar] = Form.useForm();
+    const plataforma = Form.useWatch("plataforma", formCriar)
     async function buscar() {
         const response = await AXIOS.get("/jogos");
         setJogos(response.data);
@@ -135,7 +136,8 @@ const Jogos = () => {
                 footer={null}
                 onCancel={() => setModalCriar(false)}
             >
-                <Form layout="vertical" onFinish={criar}>
+                <Form layout="vertical" form={formCriar} onFinish={criar}>
+
                     <Form.Item
                         label="Nome"
                         name="nome"
@@ -149,65 +151,115 @@ const Jogos = () => {
                         name="plataforma"
                         rules={[{ required: true, message: "Campo Obrigatório" }]}
                     >
+                        <Select
+                            options={[
+                                {
+                                    label: "PS3",
+                                    value: "PS3",
+                                },
+                                {
+                                    label: "PS4",
+                                    value: "PS4",
+                                },
+                                {
+                                    label: "PS5",
+                                    value: "PS5",
+                                },
+                                {
+                                    label: "PS4/PS5",
+                                    value: "PS4/PS5",
+                                },
+                                {
+                                    label: "Xbox 360",
+                                    value: "Xbox 360",
+                                },
+                                {
+                                    label: "Xbox One / Series",
+                                    value: "Xbox One / Series",
+                                },
+                                {
+                                    label: "Xbox Series X|S",
+                                    value: "Xbox Series X|S",
+                                },
+                                {
+                                    label: "Nintendo Switch",
+                                    value: "Nintendo Switch",
+                                },
+                            ]}
+                        />
+
+                    </Form.Item>
+                    <Form.Item label="Gênero" name="genero">
                         <Input />
                     </Form.Item>
 
-                    <Form.Item label="Jogos" name="Jogos">
-                        <InputNumber className="w-full" min={0} />
-                    </Form.Item>
-
-                    <Form.Item label="Licenças" name="licencas">
-                        <InputNumber className="w-full" min={0} />
-                    </Form.Item>
-
-                    <Form.Item label="Livres" name="livres">
-                        <InputNumber className="w-full" min={0} />
-                    </Form.Item>
-
-                    <Form.Item label="Preço Primária" name="preco_primaria">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
-
-                    <Form.Item label="Preço Primária PS5" name="preco_primaria_ps5">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
-
-                    <Form.Item label="Preço Secundária" name="preco_secundaria">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
-
-                    <Form.Item label="Revenda Primária" name="revenda_primaria">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
-
-                    <Form.Item label="Revenda Primária PS5" name="revenda_primaria_ps5">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
-
-                    <Form.Item label="Revenda Secundária" name="revenda_secundaria">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
-
-                    <Form.Item label="Preço Store" name="preco_store">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
-
-                    <Form.Item label="Preço Promo" name="preco_promo">
-                        <InputNumber className="w-full" min={0} step={0.01} />
-                    </Form.Item>
-
-                    <Form.Item label="Preço C1" name="preco_c1">
-                        <InputNumber className="w-full" min={0} step={0.01} />
+                    <Form.Item label="Idioma" name="idioma">
+                        <Input />
                     </Form.Item>
 
                     <Form.Item label="Imagem" name="imagem">
                         <Input />
                     </Form.Item>
 
-                    <Form.Item label="Data Promo" name="data_promo">
-                        <Input type="date" />
-                    </Form.Item>
+                    <Divider titlePlacement="left">Preços Base</Divider>
+                    <div className="grid grid-cols-3 gap-4">
+                        <Form.Item label="Preço Store" name="preco_store">
+                            <InputNumber className="w-full!" min={0} step={0.01} />
+                        </Form.Item>
 
+                        <Form.Item label="Preço Promo" name="preco_promo">
+                            <InputNumber className="w-full!" min={0} step={0.01} />
+                        </Form.Item>
+
+                        <Form.Item label="Preço C1" name="preco_c1">
+                            <InputNumber className="w-full!" min={0} step={0.01} />
+                        </Form.Item>
+
+                        <Form.Item label="Custo Primária" name="preco_c1">
+                            <InputNumber className="w-full!" min={0} step={0.01} />
+                        </Form.Item>
+
+                        <Form.Item label="Custo Secundária" name="preco_c1">
+                            <InputNumber className="w-full!" min={0} step={0.01} />
+                        </Form.Item>
+
+                        <Form.Item label="Data Promo" name="data_promo">
+                            <Input type="date" />
+                        </Form.Item>
+
+                    </div>
+                    <Divider titlePlacement="left">Varejo</Divider>
+                    <div className="grid grid-cols-3 gap-4">
+                        <Form.Item label="Preço Primária" name="preco_primaria">
+                            <InputNumber className="w-full!" min={0} step={0.01} disabled={plataforma == "PS5"} />
+                        </Form.Item>
+
+                        <Form.Item label="Preço Primária PS5" name="preco_primaria_ps5">
+                            <InputNumber className="w-full!" min={0} step={0.01} disabled={plataforma == "PS3" || plataforma == "Xbox 360" || plataforma == "Xbox One / Series" || plataforma == "Xbox Series X|S" || plataforma == "Nintendo Switch"} />
+                        </Form.Item>
+
+                        <Form.Item label="Preço Secundária" name="preco_secundaria">
+                            <InputNumber className="w-full!" min={0} step={0.01} disabled={plataforma == "PS3" || plataforma == "Xbox 360" || plataforma == "Xbox One / Series" || plataforma == "Xbox Series X|S"} />
+                        </Form.Item>
+                    </div>
+
+                    <Divider titlePlacement="left">Revenda</Divider>
+                    <div className="grid grid-cols-3 gap-4">
+                        <Form.Item label="Primária R1" name="revenda_primaria">
+                            <InputNumber className="w-full!" min={0} step={0.01} disabled={plataforma == "PS5"} />
+                        </Form.Item>
+
+                        <Form.Item label="Primária PS5 R1" name="revenda_primaria_ps5">
+                            <InputNumber className="w-full!" min={0} step={0.01} disabled={plataforma == "PS3" || plataforma == "Xbox 360" || plataforma == "Xbox One / Series" || plataforma == "Xbox Series X|S" || plataforma == "Nintendo Switch"} />
+                        </Form.Item>
+
+                        <Form.Item label="Secundária R1" name="revenda_secundaria">
+                            <InputNumber className="w-full!" min={0} step={0.01} disabled={plataforma == "PS3" || plataforma == "Xbox 360" || plataforma == "Xbox One / Series" || plataforma == "Xbox Series X|S"} />
+                        </Form.Item>
+
+                    </div>
+
+                    <Divider titlePlacement="left">Integração</Divider>
                     <Form.Item label="SKU Primária" name="sku_primaria">
                         <Input />
                     </Form.Item>
@@ -217,14 +269,6 @@ const Jogos = () => {
                     </Form.Item>
 
                     <Form.Item label="SKU Secundária" name="sku_secundaria">
-                        <Input />
-                    </Form.Item>
-
-                    <Form.Item label="Gênero" name="genero">
-                        <Input />
-                    </Form.Item>
-
-                    <Form.Item label="Idioma" name="idioma">
                         <Input />
                     </Form.Item>
 
